@@ -64,6 +64,7 @@ Route::group(['prefix' => 'data'], function(){
 	
 	Route::post('/staff/dataTable', 'StaffController@dataTable');
 	Route::get('/staff/get_list', 'StaffController@getList');
+	Route::get('/staff/get_list_department_filter', 'StaffController@getListDepartmentFilter');
 	Route::get('/staff/get_details/{id}', 'StaffController@getByid');
 	Route::post('/staff/create', 'StaffController@create')->name('staff_create');
 	Route::post('/staff/update', 'StaffController@update')->name('staff_update');

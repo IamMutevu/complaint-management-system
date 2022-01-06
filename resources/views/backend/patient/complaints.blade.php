@@ -231,7 +231,7 @@
     });
 
     $.loadComplaintCategories();
-    $.loadStaff();
+    // $.loadStaff();
     $.loadDepartments();
     $.loadComplaints();
 
@@ -245,6 +245,13 @@
         maxHeight: null,  
     });
     
+
+    $(document).on("change", "[name='department_id[]']", function(e){
+        var departments = $(this).val();
+        // alert(departments);
+        $.loadStaff(departments);
+    });
+
     // Complaint code //
     $("#complaints-table").DataTable({
         "processing": true,
@@ -587,9 +594,9 @@
         });    
     }
 
-    $.loadStaff = function (){
+    $.loadStaff = function (departments){
         $('select').selectpicker();
-        $.get("/data/staff/get_list", function(data, status){
+        $.get("/data/staff/get_list_department_filter?departments="+departments, function(data, status){
             var data = JSON.parse(data);
             var staff = '';
             $.each(data.staff, function(k,v){

@@ -17,6 +17,8 @@ class StaffController extends Controller
     private $id_number = null;
     private $email = null;
     private $department_id = null;
+    private $request = null;
+
 
 	public function __construct(Request $request)
     {
@@ -60,6 +62,8 @@ class StaffController extends Controller
         if($request->department_id){
             $this->department_id = $request->department_id;
         }
+
+        $this->request = $request;
     }
 
     public function index(){
@@ -126,6 +130,17 @@ class StaffController extends Controller
 
     public function getList(){
         return json_encode($this->data);
+    }
+
+    public function getListDepartmentFilter(){
+        $selected_departments = explode(",",$this->request->input('departments'));
+
+        $staff = Staff::all()->whereIn('department_id', $selected_departments);
+
+        $data = array(
+            'staff' => $staff
+        );
+        return json_encode($data);
     }
 
     public function dataTable(Request $request){
