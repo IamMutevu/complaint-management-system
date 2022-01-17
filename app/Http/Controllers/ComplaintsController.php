@@ -19,6 +19,7 @@ class ComplaintsController extends Controller
     private $files = null;
     private $date_of_concern = null;
     private $complaint = null;
+    private $request = null;
 
 	public function __construct(Request $request)
     {
@@ -58,6 +59,7 @@ class ComplaintsController extends Controller
         if($request->files){
             $this->files = $request->files;
         }
+        $this->request = $request;
 
     }
 
@@ -74,6 +76,7 @@ class ComplaintsController extends Controller
         $complaint->complaint_category_id = $this->complaint_category_id;
         $complaint->description = $this->description;
         $complaint->date_of_concern = $this->date_of_concern;
+        $complaint->status = "Pending";
         $complaint->user_id = Auth::user()->id;
 
 
@@ -118,6 +121,7 @@ class ComplaintsController extends Controller
         $this->complaint->complaint_category_id = $this->complaint_category_id;
         $this->complaint->description = $this->description;
         $this->complaint->date_of_concern = $this->complaint->date_of_concern;
+        $complaint->status = "Pending";
         $this->complaint->user_id = Auth::user()->id;
 
         if($this->complaint->save()){
@@ -162,6 +166,11 @@ class ComplaintsController extends Controller
 
     public function getById($id){
         $complaint = Complaint::findorFail($id)->load('staff', 'complainant.patient', 'departments', 'complaint_category');
+        if($this->request->query('q') == 'mark_as_read'){
+            $complaint->status = "Received";
+            $complaint->save();
+        }
+
         return json_encode($complaint);
     }
 
@@ -185,22 +194,25 @@ class ComplaintsController extends Controller
                     }
                     $table_row[] = $concerned_staff;
                     $table_row[] = Carbon::parse($complaint->date_of_concern)->toFormattedDateString();
-                    if($complaint->status == "0"){
+                    if($complaint->status == "Pending"){
                         $status = '<span class="badge badge-warning">Pending</span>';
+                    }
+                    else if($complaint->status == "Received"){
+                        $status = '<span class="badge badge-primary">Received</span>';
                     }
                     else{
                         $status = '<span class="badge badge-success">Closed</span>';
                     }
                     $table_row[] = $status;
                     
-                    if($complaint->status == 1){
+                    if($complaint->status != "Pending"){
                         $buttons = '<div class="btn-group float-right">
                                         <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'"><i class="fa fa-eye"></i></a>
                                     </div>';
                     }
                     else{
                         $buttons = '<div class="btn-group float-right">
-                                        <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'"><i class="fa fa-eye"></i></a>
+                                        <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'" data-status="'.$complaint->status.'"><i class="fa fa-eye"></i></a>
                                         <a href="#" class="btn-primary btn-xs btn editComplaintBtn" data-id="'.$complaint->id.'"><i class="fa fa-edit"></i></a>
                                         <a href="#" class="btn-danger btn-xs btn deleteComplaintBtn" data-id="'.$complaint->id.'" data-toggle="modal"><i class="fa fa-trash"></i></a>
                                     </div>';
@@ -212,31 +224,66 @@ class ComplaintsController extends Controller
         }
         else{
             foreach ($complaints as $complaint) {
-                $table_row = array();
-                $table_row[] = "#".$complaint->id;
-                $table_row[] = $complaint->complainant['patient']['first_name'] ." " .$complaint->complainant['patient']['last_name'];
-                $table_row[] = $complaint->complaint_category['name'];
-                $table_row[] = Carbon::parse($complaint->date_of_concern)->toFormattedDateString();
-                if($complaint->status == "0"){
-                    $status = '<span class="badge badge-warning">Pending</span>';
-                }
+                if($complaint->status == "Pending"){
+                    $table_row = array();
+                    $table_row[] = "<strong style='color:#000'>#" .$complaint->id."</strong>";
+                    $table_row[] = "<strong style='color:#000'>" .$complaint->complainant['patient']['first_name'] ." " .$complaint->complainant['patient']['last_name'] ."</strong";
+                    $table_row[] = "<strong style='color:#000'>" .$complaint->complaint_category['name'] ."</strong>";
+                    $table_row[] = "<strong style='color:#000'>" .Carbon::parse($complaint->date_of_concern)->toFormattedDateString() ."</strong>";
+                    if($complaint->status == "Pending"){
+                        $status = '<span class="badge badge-warning">Pending</span>';
+                    }
+                    else if($complaint->status == "Received"){
+                        $status = '<span class="badge badge-primary">Received</span>';
+                    }
+                    else{
+                        $status = '<span class="badge badge-success">Closed</span>';
+                    }
+                    $table_row[] = $status;
+                    if($complaint->status == "Closed"){
+                        $buttons = '<div class="btn-group float-right">
+                                        <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'" data-status="'.$complaint->status.'"><i class="fa fa-eye"></i></a>
+                                    </div>';
+                    }
+                    else{
+                        $buttons = '<div class="btn-group float-right">
+                                        <a href="#" class="btn-success btn-xs btn approveComplaintBtn" data-id="'.$complaint->id.'">Close</a>
+                                        <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'" data-status="'.$complaint->status.'"><i class="fa fa-eye"></i></a>
+                                    </div>';
+                    }
+                    $table_row[] = $buttons;
+                    $data[] = $table_row;  
+                }   
                 else{
-                    $status = '<span class="badge badge-success">Closed</span>';
-                }
-                $table_row[] = $status;
-                if($complaint->status == 1){
-                    $buttons = '<div class="btn-group float-right">
-                                    <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'"><i class="fa fa-eye"></i></a>
-                                </div>';
-                }
-                else{
-                    $buttons = '<div class="btn-group float-right">
-                                    <a href="#" class="btn-success btn-xs btn approveComplaintBtn" data-id="'.$complaint->id.'">Close</a>
-                                    <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'"><i class="fa fa-eye"></i></a>
-                                </div>';
-                }
-                $table_row[] = $buttons;
-                $data[] = $table_row;        		
+                    $table_row = array();
+                    $table_row[] = "#".$complaint->id;
+                    $table_row[] = $complaint->complainant['patient']['first_name'] ." " .$complaint->complainant['patient']['last_name'];
+                    $table_row[] = $complaint->complaint_category['name'];
+                    $table_row[] = Carbon::parse($complaint->date_of_concern)->toFormattedDateString();
+                    if($complaint->status == "Pending"){
+                        $status = '<span class="badge badge-warning">Pending</span>';
+                    }
+                    else if($complaint->status == "Received"){
+                        $status = '<span class="badge badge-primary">Received</span>';
+                    }
+                    else{
+                        $status = '<span class="badge badge-success">Closed</span>';
+                    }
+                    $table_row[] = $status;
+                    if($complaint->status == 1){
+                        $buttons = '<div class="btn-group float-right">
+                                        <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'"><i class="fa fa-eye"></i></a>
+                                    </div>';
+                    }
+                    else{
+                        $buttons = '<div class="btn-group float-right">
+                                        <a href="#" class="btn-success btn-xs btn approveComplaintBtn" data-id="'.$complaint->id.'">Close</a>
+                                        <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'"><i class="fa fa-eye"></i></a>
+                                    </div>';
+                    }
+                    $table_row[] = $buttons;
+                    $data[] = $table_row;  
+                }   		
             }
         }
 

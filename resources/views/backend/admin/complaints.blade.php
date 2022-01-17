@@ -451,47 +451,102 @@
     $(document).on("click", ".viewComplaintBtn", function(e){
     	e.preventDefault();
         var id = $(this).attr('data-id');
+        var status = $(this).attr('data-status');
+        if(status == "Pending"){
+            bootbox.confirm({
+                message: "Viewing this complaint will mark it as received on the patient's side. Do you want to proceed?", 
+                centerVertical: true,
+                callback: function(result){ 
+                    if(result){
+                        $.ajax({
+                            beforeSend: function () {
+                                $('#overlay').removeClass('d-none');
+                            },
+                            complete: function () {
+                                $('#overlay').addClass('d-none');  
+                            },
+                            type: 'GET',
+                            url: "/data/complaint/get_details/"+id+"?q=mark_as_read",
+                            dataType: 'JSON',
+                            cache: false,
+                            success: function (response) {
+                                var complaint = response;
+                                $("#viewComplaint").find('#complainant').html(complaint.complainant.patient.first_name +" "+complaint.complainant.patient.last_name).end();
+                                $("#viewComplaint").find('#complaint-category').html(complaint.complaint_category.name).end();
+                                $("#viewComplaint").find('#complaint-description').html(complaint.description).end();
 
-        $.ajax({
-            beforeSend: function () {
-                $('#overlay').removeClass('d-none');
-            },
-            complete: function () {
-                $('#overlay').addClass('d-none');  
-            },
-            type: 'GET',
-            url: "/data/complaint/get_details/"+id,
-            dataType: 'JSON',
-            cache: false,
-            success: function (response) {
-	        	var complaint = response;
-                $("#viewComplaint").find('#complainant').html(complaint.complainant.patient.first_name +" "+complaint.complainant.patient.last_name).end();
-	            $("#viewComplaint").find('#complaint-category').html(complaint.complaint_category.name).end();
-	            $("#viewComplaint").find('#complaint-description').html(complaint.description).end();
-
-                var departments = "";
-                $.each(complaint.departments , function(k, v){
-                    departments += ` <span class="badge badge-info">${v.name}</span> `;
-                });
-                $("#viewComplaint").find('#complaint-department').html(departments).end();
-  
-                var staff = "";
-                $.each(complaint.staff , function(k, v){
-                    staff += v.first_name + " " + v.last_name + " | ";
-                });
-                $("#viewComplaint").find('#complaint-staff').html(staff).end();
+                                var departments = "";
+                                $.each(complaint.departments , function(k, v){
+                                    departments += ` <span class="badge badge-info">${v.name}</span> `;
+                                });
+                                $("#viewComplaint").find('#complaint-department').html(departments).end();
+                  
+                                var staff = "";
+                                $.each(complaint.staff , function(k, v){
+                                    staff += v.first_name + " " + v.last_name + " | ";
+                                });
+                                $("#viewComplaint").find('#complaint-staff').html(staff).end();
 
 
-	            $('a[role="tab"]').on('shown').removeClass('active');
-		        $('div[role="tabpanel"]').on('shown').removeClass('active').removeClass('show');
-		        $('a[aria-controls="viewComplaint"]').addClass('active');
-		        $('#viewComplaint').addClass('active').addClass('show');
-		        $('a[aria-controls="viewComplaint"]').closest('li').removeClass('d-none');
-            }
-        });
+                                $('a[role="tab"]').on('shown').removeClass('active');
+                                $('div[role="tabpanel"]').on('shown').removeClass('active').removeClass('show');
+                                $('a[aria-controls="viewComplaint"]').addClass('active');
+                                $('#viewComplaint').addClass('active').addClass('show');
+                                $('a[aria-controls="viewComplaint"]').closest('li').removeClass('d-none');
+                            }
+                        });                
+                    }
+                }
+            }); 
+        }
+        else{
+            $.ajax({
+                beforeSend: function () {
+                    $('#overlay').removeClass('d-none');
+                },
+                complete: function () {
+                    $('#overlay').addClass('d-none');  
+                },
+                type: 'GET',
+                url: "/data/complaint/get_details/"+id,
+                dataType: 'JSON',
+                cache: false,
+                success: function (response) {
+                    var complaint = response;
+
+                    $('#complaints-table').DataTable().ajax.reload();
+
+                    $("#viewComplaint").find('#complainant').html(complaint.complainant.patient.first_name +" "+complaint.complainant.patient.last_name).end();
+                    $("#viewComplaint").find('#complaint-category').html(complaint.complaint_category.name).end();
+                    $("#viewComplaint").find('#complaint-description').html(complaint.description).end();
+
+                    var departments = "";
+                    $.each(complaint.departments , function(k, v){
+                        departments += ` <span class="badge badge-info">${v.name}</span> `;
+                    });
+                    $("#viewComplaint").find('#complaint-department').html(departments).end();
+      
+                    var staff = "";
+                    $.each(complaint.staff , function(k, v){
+                        staff += v.first_name + " " + v.last_name + " | ";
+                    });
+                    $("#viewComplaint").find('#complaint-staff').html(staff).end();
+
+
+                    $('a[role="tab"]').on('shown').removeClass('active');
+                    $('div[role="tabpanel"]').on('shown').removeClass('active').removeClass('show');
+                    $('a[aria-controls="viewComplaint"]').addClass('active');
+                    $('#viewComplaint').addClass('active').addClass('show');
+                    $('a[aria-controls="viewComplaint"]').closest('li').removeClass('d-none');
+                }
+            });     
+        }
+
     });
 
     $(document).on("click", ".closeViewComplaintBtn", function(e){
+        $('#complaints-table').DataTable().ajax.reload();
+
         $('a[role="tab"]').on('shown').removeClass('active');
 		$('div[role="tabpanel"]').on('shown').removeClass('active').removeClass('show');
         $('a[aria-controls="complaintsTable"]').addClass('active');
