@@ -32,6 +32,9 @@
 					<li class="nav-item d-none">
 						<a class="nav-link" data-toggle="tab" href="#viewComplaint" role="tab" aria-controls="viewComplaint" aria-selected="false">View</a>
 					</li>
+                    <li class="nav-item d-none">
+                        <a class="nav-link" data-toggle="tab" href="#updateComplaint" role="tab" aria-controls="updateComplaint" aria-selected="false">Update</a>
+                    </li>
 				</ul>
 				<div class="tab-content" id="myTabContent">
 					<div class="tab-pane fade show active" id="complaintsTable" role="tabpanel" aria-labelledby="complaintsTable-tab">
@@ -207,6 +210,43 @@
 							</div>			
 						</div>
 					</div>
+                    <div class="tab-pane fade" id="updateComplaint" role="tabpanel" aria-labelledby="updateComplaint-tab">
+                        <div class="mt-3">
+                            <form method="post" action="{{ route('complaint_update') }}" id="edit-complaint">
+                                @csrf
+                                <input type="hidden" name="id">
+                                <div class="card shadow mb-5 bg-white rounded">
+                                    <div class="card-header">
+                                        Complaint Information
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label for="complaint_category_id">Status</label>
+                                            <select class="form-control selectpicker" name="status">
+                                                <option>Investigations Ongoing</option>
+                                                <option>Closed</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="description">Description</label>
+                                            <textarea class="form-control summernote" id="complaint-description" name="description" rows="3"></textarea>
+                                        </div>
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <label for="complaint_files" class="col-form-label">Any related files</label>
+                                                <div class="dropzone page" id="complaint_files">
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div>
+                                    <div class="card-footer text-right">
+                                        <button type="button" class="btn btn-sm btn-secondary cancelEditComplaintBtn"> Cancel</button>
+                                        <button type="submit" class="btn btn-sm btn-primary"> Update</button>    
+                                    </div>
+                                </div>
+                            </form>                     
+                        </div>
+                    </div>
 				</div>
 			</div>			
 		</div>
@@ -594,42 +634,14 @@
 		});
     });  
 
-    $(document).on("click", ".approveComplaintBtn", function(e){
+    $(document).on("click", ".updateComplaintBtn", function(e){
     	var id = $(this).attr('data-id');
-    	bootbox.confirm({
-    		message: "Are you sure you want to close this complaint?", 
-    		centerVertical: true,
-    		callback: function(result){ 
-		    	if(result){
-			        $.ajax({
-			            beforeSend: function () {
-			                $('#overlay').removeClass('d-none');
-			            },
-			            complete: function () {
-			                $('#overlay').addClass('d-none');  
-			            },
-			            type: 'GET',
-			            url: "/data/complaint/close/"+id,
-			            dataType: 'JSON',
-			            cache: false,
-			            success: function (response, textStatus, jqXHR) {
-			            	$('#complaints-table').DataTable().ajax.reload();
-			                toastr.success(response.message);
 
-			            },
-			            error: function (jqXHR, textStatus, errorThrown) {
-			                toastr.options = {
-			                    "closeButton": true,
-			                    "progressBar": true,
-			                    "positionClass": "toast-bottom-right",
-			                    "timeOut": "10000",
-			                };
-			                toastr.error(errorThrown);
-			            }
-			        }); 	    		
-		    	}
-			}
-		});
+        $('a[role="tab"]').on('shown').removeClass('active');
+        $('div[role="tabpanel"]').on('shown').removeClass('active').removeClass('show');
+        $('a[aria-controls="updateComplaint"]').addClass('active');
+        $('#updateComplaint').addClass('active').addClass('show');
+        $('a[aria-controls="updateComplaint"]').closest('li').removeClass('d-none');
     });   
 });
 

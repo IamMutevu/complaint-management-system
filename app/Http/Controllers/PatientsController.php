@@ -58,7 +58,7 @@ class PatientsController extends Controller
             $this->email = $request->email;
         }
         if($request->date_of_birth){
-            $this->date_of_birth = Carbon::createFromFormat('m/d/Y H:i a', $request->date_of_birth)->format('Y-m-d');
+            $this->date_of_birth = Carbon::createFromFormat('m/d/Y h:i a', $request->date_of_birth)->format('Y-m-d');
         }
     }
 
@@ -136,6 +136,7 @@ class PatientsController extends Controller
 
     public function getById($id){
         $patient = Patient::findorFail($id);
+        $patient->date_of_birth = Carbon::createFromFormat('Y-m-d', $patient->date_of_birth)->format('m/d/Y h:i a');
         return json_encode($patient);
     }
 

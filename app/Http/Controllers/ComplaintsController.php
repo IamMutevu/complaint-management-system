@@ -247,7 +247,7 @@ class ComplaintsController extends Controller
                     }
                     else{
                         $buttons = '<div class="btn-group float-right">
-                                        <a href="#" class="btn-success btn-xs btn approveComplaintBtn" data-id="'.$complaint->id.'">Close</a>
+                                        <a href="#" class="btn-info btn-xs btn updateComplaintBtn" data-id="'.$complaint->id.'">Update</a>
                                         <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'" data-status="'.$complaint->status.'"><i class="fa fa-eye"></i></a>
                                     </div>';
                     }
@@ -277,7 +277,7 @@ class ComplaintsController extends Controller
                     }
                     else{
                         $buttons = '<div class="btn-group float-right">
-                                        <a href="#" class="btn-success btn-xs btn approveComplaintBtn" data-id="'.$complaint->id.'">Close</a>
+                                        <a href="#" class="btn-info btn-xs btn updateComplaintBtn" data-id="'.$complaint->id.'">Update</a>
                                         <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'"><i class="fa fa-eye"></i></a>
                                     </div>';
                     }

@@ -123,7 +123,7 @@
 						<div class="mt-3">
                             <form method="post" action="{{ route('patient_update') }}" id="edit-patient">
                                 @csrf
-                                <<input type="hidden" name="id">
+                                <input type="hidden" name="id">
                                 <div class="card shadow mb-5 bg-white rounded">
                                     <div class="card-header">
                                         Patient Information
