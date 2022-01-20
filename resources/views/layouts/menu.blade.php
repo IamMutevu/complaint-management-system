@@ -35,8 +35,8 @@
                   <p>Complaint Categories</p>
                 </a>
               </li>
-              <li class="nav-item not-setup">
-                <a href="" class="nav-link reports">
+              <li class="nav-item">
+                <a href="{{ route('reports') }}" class="nav-link reports">
                   <i class="fa fa-database nav-icon"></i>
                   <p>Reports</p>
                 </a>

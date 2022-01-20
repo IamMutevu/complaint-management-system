@@ -1,0 +1,360 @@
+/**
+ * Devstratum JQP Graph
+ *
+ * @version         1.5
+ * @author          Sergey Osipov <info@devstratum.ru>
+ * @link            https://devstratum.ru
+ * @copyright       Copyright © 2021 Sergey Osipov. All Rights Reserved
+ * @license         MIT/X11 License
+ * Report bugs      https://github.com/devstratum/Devstratum-JQP-Graph/issues
+ */
+
+:root {
+    --dvstrtm-grid-line-color: #ccc;
+    --dvstrtm-grid-line-label: #999;
+}
+
+/*-------------------------------------*/
+/* Graph                               */
+/*-------------------------------------*/
+
+.dvstrtm-graph {
+    display: block;
+    position: relative;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 16px;
+}
+
+.dvstrtm-graph__header {
+    display: block;
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.dvstrtm-graph__body {
+    display: block;
+    position: relative;
+}
+
+/*-------------------------------------*/
+/* Graph Header                        */
+/*-------------------------------------*/
+
+.dvstrtm-graph .graph-header {
+    display: block;
+    position: relative;
+}
+
+.dvstrtm-graph .graph-header__title {
+    display: block;
+    position: relative;
+    margin-bottom: 16px;
+    font-size: 130%;
+    font-weight: 500;
+}
+
+.dvstrtm-graph .graph-header__info {
+    display: flex;
+    position: relative;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.dvstrtm-graph .graph-header__info > div {
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.dvstrtm-graph .graph-header__descr {
+    display: block;
+    position: relative;
+    margin-top: 16px;
+    color: #777;
+}
+
+/*-------------------------------------*/
+/* Graph Header Info                   */
+/*-------------------------------------*/
+
+.dvstrtm-graph .info-unit {
+    display: block;
+    position: relative;
+    margin-right: 16px;
+    padding: 4px 16px;
+    border: 1px solid #999;
+    line-height: 1.2;
+}
+
+.dvstrtm-graph .info-points {
+    display: flex;
+    position: relative;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.dvstrtm-graph .info-point {
+    display: flex;
+    position: relative;
+    justify-content: flex-start;
+    align-items: center;
+    margin-right: 16px;
+}
+
+.dvstrtm-graph .info-point__color {
+    display: block;
+    position: relative;
+    margin-right: 8px;
+}
+
+.dvstrtm-graph .info-point__color span {
+    display: block;
+    position: relative;
+    width: 12px;
+    height: 12px;
+}
+
+.dvstrtm-graph .info-point__title {
+    display: block;
+    position: relative;
+    font-size: 90%;
+    line-height: 1.2;
+}
+
+.dvstrtm-graph .info-better {
+    display: block;
+    position: relative;
+    padding: 4px 16px;
+    font-size: 90%;
+    line-height: 1.2;
+    color: #fff;
+    border-radius: 30px;
+    background: #0d95e8;
+}
+
+/*-------------------------------------*/
+/* Graph Body                          */
+/*-------------------------------------*/
+
+.dvstrtm-graph .graph-body {
+    display: block;
+    position: relative;
+    padding: 4px 0 24px;
+    margin-right: 16px;
+}
+
+.dvstrtm-graph .graph-body.nolabels {
+    margin: 0 16px;
+}
+
+.dvstrtm-graph .graph-body__grid {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 20%;
+    right: 0;
+    height: 100%;
+    font-size: 80%;
+}
+
+.dvstrtm-graph .nolabels .graph-body__grid {
+    left: 0;
+}
+
+.dvstrtm-graph .graph-body__chart {
+    display: block;
+    position: relative;
+}
+
+@media (max-width: 767px) {
+    .dvstrtm-graph .graph-body__grid {
+        left: 0;
+    }
+
+    .dvstrtm-graph .graph-body {
+        margin: 0!important;
+    }
+}
+
+/*-------------------------------------*/
+/* Graph Body Grid                     */
+/*-------------------------------------*/
+
+.dvstrtm-graph .grid-line-crs {
+    display: block;
+    position: absolute;
+    height: 1px;
+    bottom: 16px;
+    left: -16px;
+    right: -16px;
+    background: var(--dvstrtm-grid-line-color);
+}
+
+.dvstrtm-graph .grid-line {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    top: 0;
+    background: var(--dvstrtm-grid-line-color);
+}
+
+.dvstrtm-graph .grid-line span {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    right: 8px;
+    color: var(--dvstrtm-grid-line-label);
+}
+
+.dvstrtm-graph .grid-line-end {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    top: 0;
+    right: 0;
+    background: var(--dvstrtm-grid-line-color);
+}
+
+.dvstrtm-graph .grid-line-end span {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    right: 8px;
+    color: var(--dvstrtm-grid-line-label);
+}
+
+@media (max-width: 767px) {
+    .dvstrtm-graph .grid-line-crs {
+        left: 0;
+        right: 0;
+    }
+
+    .dvstrtm-graph .oddparts .grid-line:nth-child(odd) {
+        display: none;
+    }
+
+    .dvstrtm-graph .grid-line.line-1 span {
+        right: -12px;
+    }
+}
+
+@media (max-width: 559px) {
+    .dvstrtm-graph .grid-line {
+        display: none;
+    }
+
+    .dvstrtm-graph .grid-line.line-1 {
+        display: block;
+    }
+
+    .dvstrtm-graph .graph-body__grid::after {
+        display: block;
+        position: absolute;
+        content: '';
+        width: 1px;
+        height: 100%;
+        top: 0;
+        left: 50%;
+        background: var(--dvstrtm-grid-line-color);
+    }
+}
+
+/*-------------------------------------*/
+/* Graph Body Chart Block              */
+/*-------------------------------------*/
+
+.dvstrtm-graph .chart-block {
+    display: flex;
+    position: relative;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 16px 0;
+}
+
+.dvstrtm-graph .chart-block__label {
+    display: block;
+    position: relative;
+    width: 20%;
+    box-sizing: border-box;
+    padding-right: 16px;
+    text-align: right;
+    line-height: 1.2;
+}
+
+.dvstrtm-graph .nolabels .chart-block__label {
+    display: none;
+}
+
+.dvstrtm-graph .chart-block__lines {
+    display: block;
+    position: relative;
+    min-height: 32px;
+    width: 80%;
+}
+
+.dvstrtm-graph .nolabels .chart-block__lines {
+    width: 100%;
+}
+
+.dvstrtm-graph .chart-line {
+    display: flex;
+    position: relative;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 32px;
+    background: #555;
+}
+
+.dvstrtm-graph .chart-line i {
+    display: block;
+    position: relative;
+    padding: 0;
+    line-height: 1;
+    font-size: 90%;
+    font-style: normal;
+    white-space: nowrap;
+    color: #eee;
+}
+
+.dvstrtm-graph .chart-line span {
+    display: block;
+    position: relative;
+    padding: 0 6px;
+    line-height: 1;
+    font-size: 90%;
+    white-space: nowrap;
+    color: #fff;
+    text-shadow: 1px 1px 1px #333;
+}
+
+@media (max-width: 767px) {
+    .dvstrtm-graph .chart-block {
+        flex-wrap: wrap;
+    }
+
+    .dvstrtm-graph .chart-block__label {
+        position: absolute;
+        top: -8px;
+        width: 100%;
+        text-align: left;
+        font-size: 90%;
+        padding: 4px 8px;
+    }
+
+    .dvstrtm-graph .chart-block__lines {
+        width: 100%;
+    }
+
+    .dvstrtm-graph .chart-line {
+        position: relative!important;
+        min-height: 18px;
+    }
+
+    .dvstrtm-graph .chart-line span {
+        font-size: 80%;
+    }
+}

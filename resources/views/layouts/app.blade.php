@@ -41,6 +41,8 @@
   <link href="{{ asset('css/doka.min.css') }}" rel="stylesheet">
   <link href="{{ asset('css/toastr.css') }}" rel="stylesheet">
 
+  <link href="{{ asset('backend/plugins/barchart/distrib/dvstrtm_jqp_graph.min.css') }}" rel="stylesheet" />
+
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script> -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 </head>
@@ -183,6 +185,11 @@
 <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
 <!-- overlayScrollbars -->
 <script src="{{ asset('backend/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
+
+
+<script src="{{ asset('backend/plugins/barchart/distrib/dvstrtm_jqp_graph.min.js') }}"></script>
+
+
 <!-- AdminLTE App -->
 <script src="{{ asset('backend/dist/js/adminlte.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>

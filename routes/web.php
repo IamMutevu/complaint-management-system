@@ -36,6 +36,8 @@ Route::prefix('admin')->group(function () {
 	Route::get('/complaint_categories', 'ComplaintCategoriesController@index')->name('complaint_categories');
 	Route::get('/complaints', 'ComplaintsController@index')->name('complaints');
 
+	Route::get('/reports', 'ReportsController@index')->name('reports');
+
 	Route::post('/dropzone', 'DropzoneController@upload')->name('dropzone');
 	Route::post('/dropzone_delete', 'DropzoneController@delete')->name('dropzone_delete');
 	Route::get('/getimages','DropzoneController@getImages');
@@ -94,8 +96,10 @@ Route::group(['prefix' => 'data'], function(){
 	Route::get('/complaint_update/get_details/{id}', 'ComplaintUpdatesController@getByid');
 	Route::post('/complaint_update/create', 'ComplaintUpdatesController@create')->name('complaint_update_create');
 	Route::post('/complaint_update/update', 'ComplaintUpdatesController@update')->name('complaint_update_update');
-	Route::get('/complaint_update/delete/{id}', 'ComplaintUpdatesController@delete')->name('complaint_update_delete');
-	Route::get('/complaint_update/close/{id}', 'ComplaintUpdatesController@closeComplaintUpdate')->name('complaint_update_close');
+
+
+	Route::post('/reports/dataTable', 'ReportsController@dataTable');
+	Route::get('/reports/get_data', 'ReportsController@getData');
 });
 
 

@@ -7,8 +7,8 @@ use App\Messages\AfricasTalkingGateway;
 class SMSController extends Controller{
 	public function send_message($phone, $message){
 		// Set your app credentials
-		$username   = "sandbox";
-		$apiKey     = "12d8fb7e9424131fc0a6c83fd05143fda4ef7715d318f1bad1fd95fd9a8860c1";
+		$username   = "Alabee";
+		$apiKey     = "cf8fa1f051f9f0e4c9005494c0e30ab93219a91c4b2263bc513651492b3b3b66";
 
 		$sms         = new AfricasTalkingGateway($username, $apiKey);
 
