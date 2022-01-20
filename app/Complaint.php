@@ -10,6 +10,10 @@ class Complaint extends Model
         return $this->belongsTo('App\ComplaintCategory');
     }
 
+    public function complaint_attachments(){
+        return $this->hasMany('App\ComplaintAttachment');
+    }
+
     public function complainant(){
         return $this->belongsTo('App\User', 'user_id');
     }

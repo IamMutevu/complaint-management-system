@@ -35,6 +35,10 @@ Route::prefix('admin')->group(function () {
 	Route::get('/staff', 'StaffController@index')->name('staff');
 	Route::get('/complaint_categories', 'ComplaintCategoriesController@index')->name('complaint_categories');
 	Route::get('/complaints', 'ComplaintsController@index')->name('complaints');
+
+	Route::post('/dropzone', 'DropzoneController@upload')->name('dropzone');
+	Route::post('/dropzone_delete', 'DropzoneController@delete')->name('dropzone_delete');
+	Route::get('/getimages','DropzoneController@getImages');
 });
 
 Route::group(['prefix' => 'dashboard'], function(){

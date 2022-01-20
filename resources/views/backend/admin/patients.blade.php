@@ -103,7 +103,7 @@
                                             <div class="col-md-4">
                                                 <label for="deadline">Date of birth</label>
                                                 <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-                                                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker1" autocomplete="off" name="date_of_birth"/>
+                                                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker1" autocomplete="off" name="date_of_birth" onkeydown="event.preventDefault()" placeholder="Select a date" />
                                                     <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
                                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                                     </div>
@@ -229,8 +229,15 @@
         }
     });
 
-    $('#datetimepicker1').datetimepicker();
-    $('#update-date-of-birth').datetimepicker();
+    $('#datetimepicker1').datetimepicker({
+        format: "DD/MM/yyyy",
+        maxDate: 'now'
+    });
+
+    $('#update-date-of-birth').datetimepicker({
+        format: "DD/MM/yyyy",
+        maxDate: 'now'
+    });
     $('.selectpicker').selectpicker();
     
     // Patient code //

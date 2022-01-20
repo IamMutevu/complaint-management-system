@@ -16,6 +16,7 @@ class CreateComplaintUpdatesTable extends Migration
         Schema::create('complaint_updates', function (Blueprint $table) {
             $table->id();
             $table->longText('description');
+            $table->foreignId('complaint_id')->references('id')->on('complaints')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->references('id')->on('users')->onDelete('set null');
             $table->timestamps();
         });

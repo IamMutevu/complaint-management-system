@@ -82,7 +82,7 @@
                                             <div class="col-md-4">
                                                 <label for="deadline">Date of concern</label>
                                                 <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-                                                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker1" autocomplete="off" name="date_of_concern"/>
+                                                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker1" autocomplete="off" name="date_of_concern" onkeydown="event.preventDefault()" placeholder="Select a date" />
                                                     <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
                                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                                     </div>
@@ -92,7 +92,7 @@
                                         <div class="form-group row">
 											<div class="col-md-12">
 												<label for="complaint_files" class="col-form-label">Any related files</label>
-												<div class="dropzone page" id="complaint_files">
+												<div class="dropzone page multiple" id="complaint_files" data-name="complaint_files[]">
 												</div>
 											</div>
 										</div> 
@@ -109,7 +109,7 @@
 						<div class="mt-3">
                             <form method="post" action="{{ route('complaint_update') }}" id="edit-complaint">
                                 @csrf
-                                <<input type="hidden" name="id">
+                                <input type="hidden" name="id">
                                 <div class="card shadow mb-5 bg-white rounded">
                                     <div class="card-header">
                                         Complaint Information
@@ -122,7 +122,7 @@
                                         </div>
                                         <div class="form-group">
 											<label for="description">Description</label>
-											<textarea class="form-control summernote" id="complaint-description" name="description" rows="3"></textarea>
+											<textarea class="form-control summernote" id="complaint-description-updater" name="description" rows="3"></textarea>
 										</div>
                                         <div class="form-group row">
                                             <div class="col-md-4">
@@ -137,9 +137,9 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <label for="deadline">Date of concern</label>
-                                                <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-                                                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker1" autocomplete="off" name="date_of_concern"/>
-                                                    <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+                                                <div class="input-group date" id="update-date-of-birth" data-target-input="nearest">
+                                                    <input type="text" class="form-control datetimepicker-input" data-target="#update-date-of-birth" autocomplete="off" name="date_of_concern" onkeydown="event.preventDefault()" placeholder="Select a date" />
+                                                    <div class="input-group-append" data-target="#update-date-of-birth" data-toggle="datetimepicker">
                                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                                     </div>
                                                 </div>
@@ -148,10 +148,13 @@
                                         <div class="form-group row">
 											<div class="col-md-12">
 												<label for="complaint_files" class="col-form-label">Any related files</label>
-												<div class="dropzone page" id="complaint_files">
+												<div class="dropzone page multiple" id="complaint_files_updater" data-name="complaint_files[]">
 												</div>
 											</div>
 										</div> 
+                                        <div class="row" id="complaint_attachments">
+                                            
+                                        </div>
                                     </div>
                                     <div class="card-footer text-right">
                                         <button type="button" class="btn btn-sm btn-secondary cancelEditComplaintBtn"><i class="fa fa-times"></i> Cancel</button>
@@ -235,10 +238,19 @@
     $.loadDepartments();
     $.loadComplaints();
 
-    $('#datetimepicker1').datetimepicker();
-    $('#update-date-of-birth').datetimepicker();
+    $('#datetimepicker1').datetimepicker({
+        format: "DD/MM/yyyy",
+        maxDate: 'now'
+    });
+    $('#update-date-of-birth').datetimepicker({
+        format: "DD/MM/yyyy",
+        maxDate: 'now'
+    });
+
     $('.selectpicker').selectpicker();
     $('#complaint_files').initDropzone();
+    $('#complaint_files_updater').initDropzone();
+
     $('.summernote').summernote({
         height: 200,          
         minHeight: null,           
@@ -282,6 +294,9 @@
             description: {
                 required: true,
                 minlength: 20
+            }, 
+            "department_id[]": {
+                required: true,
             }
         },
         messages: {
@@ -291,50 +306,61 @@
             description: {
                 required: "Description is required",
                 minlength: "Description should be at least 20 characters"
+            },
+            "department_id[]": {
+                required: "Department is required",
             }
         },
         submitHandler: function(form) {
-        	var formData = new FormData(form);
-            $.ajax({
-                beforeSend: function () {
-                    $('#overlay').removeClass('d-none');
-                },
-                complete: function () {
-                    $('#overlay').addClass('d-none');  
-                },
-                url: $(form).attr('action'), 
-                method: 'POST',
-                data: formData,
-                processData: false,
-                dataType: 'json', 
-                contentType: false,
-                success: function (response, textStatus, jqXHR) {
-                    form.reset();
-                    $('#complaints-table').DataTable().ajax.reload();
-                    $('select').selectpicker('refresh')
-                    $('.summernote').summernote('code', ""); 
-                    toastr.success(response.message);
+            if($("#complaint-description").val().trim().length > 0){
+                var formData = new FormData(form);
+                $.ajax({
+                    beforeSend: function () {
+                        $('#overlay').removeClass('d-none');
+                    },
+                    complete: function () {
+                        $('#overlay').addClass('d-none');  
+                    },
+                    url: $(form).attr('action'), 
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    dataType: 'json', 
+                    contentType: false,
+                    success: function (response, textStatus, jqXHR) {
+                        form.reset();
+                        $('#complaints-table').DataTable().ajax.reload();
+                        $('select').selectpicker('refresh')
+                        $('.summernote').summernote('code', ""); 
+                        toastr.success(response.message);
 
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    toastr.options = {
-                        "closeButton": true,
-                        "progressBar": true,
-                        "positionClass": "toast-bottom-right",
-                        "timeOut": "10000",
-                    };
-                    toastr.error(errorThrown);
-                }
-            });
-
-
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-bottom-right",
+                            "timeOut": "10000",
+                        };
+                        toastr.error(errorThrown);
+                    }
+                });
+            }
+            else{
+                toastr.options = {
+                    "closeButton": true,
+                    "progressBar": true,
+                    "positionClass": "toast-bottom-right",
+                    "timeOut": "10000",
+                };
+                toastr.error("Please include details of your complaint in the description area");
+            }
         }
     });
 
     $(document).on("click", ".editComplaintBtn", function(e){
     	e.preventDefault();
-        var id = $(this).attr('data-id');
-        
+        var id = $(this).attr('data-id');    
         $.ajax({
             beforeSend: function () {
                 $('#overlay').removeClass('d-none');
@@ -354,18 +380,65 @@
                 $("#editComplaint").find('[name="date_of_concern"]').val(complaint.date_of_concern).end();
 	            $("#editComplaint").find('[name="id"]').val(complaint.id).end();  
 
-                var staff_selections = [];
                 var department_selections = [];
-                $.each(complaint.staff, function(k,v){
-                    staff_selections.push(v.id);
-                });
+
+                var departments = "";
                 $.each(complaint.departments, function(k,v){
                     department_selections.push(v.id);
+                    if(departments == ""){
+                        departments += v.id;
+                    }
+                    else{
+                        departments += "," + v.id;
+                    }
+                    
                 });
-
-                $("#editComplaint").find('[name="staff_id[]"]').selectpicker('val', staff_selections); 
+                
                 $("#editComplaint").find('[name="department_id[]"]').selectpicker('val', department_selections); 
+
+                $.loadStaff(departments); 
+
+                $('select').selectpicker('refresh');
+
+                var staff_selections = [];
+                $.each(complaint.staff, function(k,v){
+                    staff_selections.push(v.id);
+                    console.log(v.id);
+                });
+                
+                $("#editComplaint").find('[name="staff_id[]"]').selectpicker('val', staff_selections); 
+                
 	            $('select').selectpicker('refresh');
+
+                // Display attachments 
+                var files = "";
+                if(complaint.complaint_attachments.length > 0){
+                    $.each(complaint.complaint_attachments, function(k,v){
+                        files += 
+                        `
+                            <div class="col-md-6">
+                                <div class="card">
+                                  <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-10">
+                                            <h4>${v.attachment}</h4>
+                                        </div> 
+                                        <div class="col-2">
+                                            <a href="#" class="btn btn-danger">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </div>    
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                        `
+                    });
+                    $("#complaint_attachments").html(files);
+                }
+                else{
+                    $("#complaint_attachments").html("No files attached");
+                }
 
 		        $('a[role="tab"]').on('shown').removeClass('active');
 		        $('div[role="tabpanel"]').on('shown').removeClass('active').removeClass('show');
@@ -384,6 +457,9 @@
             description: {
                 required: true,
                 minlength: 20
+            }, 
+            "department_id[]": {
+                required: true,
             }
         },
         messages: {
@@ -393,9 +469,13 @@
             description: {
                 required: "Description is required",
                 minlength: "Description should be at least 20 characters"
+            },
+            "department_id[]": {
+                required: "Department is required",
             }
         },
         submitHandler: function(form) {
+            if($("#complaint-description-updater").val().trim().length > 0){
             var formData = new FormData(form);
             $.ajax({
                 beforeSend: function () {
@@ -411,17 +491,17 @@
                 dataType: 'json', 
                 contentType: false,
                 success: function (response, textStatus, jqXHR) {
-                	form.reset();
-                	$('#complaints-table').DataTable().ajax.reload();
+                    form.reset();
+                    $('#complaints-table').DataTable().ajax.reload();
                     toastr.success(response.message);
 
-			        $('a[role="tab"]').on('shown').removeClass('active');
-					$('div[role="tabpanel"]').on('shown').removeClass('active').removeClass('show');
-					$('a[aria-controls="complaintsTable"]').addClass('active');
-					$("#complaintsTable").addClass('show').addClass('active');
-			        $('a[aria-controls="complaintsTable"]').addClass('active').addClass('show');
-			        $('#complaintsTable').addClass('active').addClass('show');
-			        $('a[aria-controls="editComplaint"]').closest('li').addClass('d-none');
+                    $('a[role="tab"]').on('shown').removeClass('active');
+                    $('div[role="tabpanel"]').on('shown').removeClass('active').removeClass('show');
+                    $('a[aria-controls="complaintsTable"]').addClass('active');
+                    $("#complaintsTable").addClass('show').addClass('active');
+                    $('a[aria-controls="complaintsTable"]').addClass('active').addClass('show');
+                    $('#complaintsTable').addClass('active').addClass('show');
+                    $('a[aria-controls="editComplaint"]').closest('li').addClass('d-none');
 
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -433,8 +513,17 @@
                     };
                     toastr.error(errorThrown);
                 }
-
             });
+            }
+            else{
+                toastr.options = {
+                    "closeButton": true,
+                    "progressBar": true,
+                    "positionClass": "toast-bottom-right",
+                    "timeOut": "10000",
+                };
+                toastr.error("Please include details of your complaint in the description area");
+            }
         }
     });
     

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Complaint;
 use App\ComplaintDepartment;
+use App\ComplaintAttachment;
 use App\ComplaintStaff;
 use Auth;
 
@@ -19,6 +20,7 @@ class ComplaintsController extends Controller
     private $files = null;
     private $date_of_concern = null;
     private $complaint = null;
+    protected $uploaded_complaint_files = null;
     private $request = null;
 
 	public function __construct(Request $request)
@@ -38,12 +40,10 @@ class ComplaintsController extends Controller
         if($request->id){
             $this->id = $request->id;
         }
-        else{
-            if($request->date_of_concern){
-                $this->date_of_concern = Carbon::createFromFormat('m/d/Y H:i a', $request->date_of_concern)->format('Y-m-d');
-            }
-        }
 
+        if($request->date_of_concern){
+            $this->date_of_concern = Carbon::createFromFormat('d/m/Y', $request->date_of_concern)->format('Y-m-d');
+        }
         if($request->complaint_category_id){
             $this->complaint_category_id = $request->complaint_category_id;
         }
@@ -56,11 +56,10 @@ class ComplaintsController extends Controller
         if($request->staff_id){
             $this->staff_id = $request->staff_id;
         }
-        if($request->files){
-            $this->files = $request->files;
+        if($request->complaint_files){
+            $this->files = $request->complaint_files;
         }
         $this->request = $request;
-
     }
 
     public function index(){
@@ -81,6 +80,8 @@ class ComplaintsController extends Controller
 
 
         if($complaint->save()){
+            $this->id = $complaint->id;
+
             foreach($this->department_id as $department){
                 $complaint_department = new ComplaintDepartment();
                 $complaint_department->complaint_id = $complaint->id;
@@ -88,12 +89,19 @@ class ComplaintsController extends Controller
                 $complaint_department->save();
             }
 
-            foreach($this->staff_id as $staff){
-                $complaint_staff = new ComplaintStaff();
-                $complaint_staff->complaint_id = $complaint->id;
-                $complaint_staff->staff_id = $staff;
-                $complaint_staff->save();
+            if($this->staff_id){
+                foreach($this->staff_id as $staff){
+                    $complaint_staff = new ComplaintStaff();
+                    $complaint_staff->complaint_id = $complaint->id;
+                    $complaint_staff->staff_id = $staff;
+                    $complaint_staff->save();
+                }
             }
+
+
+            $this->path = storage_path('tmp/dropzone');
+            $this->uploadAttachments();
+            $this->attachFiles();
 
             //send message to admin
             $sms = new SMSController();
@@ -116,33 +124,37 @@ class ComplaintsController extends Controller
     }
 
 	public function update(){
-        $this->complaint = Complaint::findorFail($this->id);
+        $complaint = Complaint::findorFail($this->id);
 
-        $this->complaint->complaint_category_id = $this->complaint_category_id;
-        $this->complaint->description = $this->description;
-        $this->complaint->date_of_concern = $this->complaint->date_of_concern;
+        $complaint->complaint_category_id = $this->complaint_category_id;
+        $complaint->description = $this->description;
+        $complaint->date_of_concern = $this->date_of_concern;
         $complaint->status = "Pending";
-        $this->complaint->user_id = Auth::user()->id;
+        $complaint->user_id = Auth::user()->id;
 
-        if($this->complaint->save()){
-            // $this->complaint->departments->delete();
-            // $this->complaint->staff->delete();
+        if($complaint->save()){
             $this->deleteRelatingFields();
 
             foreach($this->department_id as $department){
                 $complaint_department = new ComplaintDepartment();
-                $complaint_department->complaint_id = $this->complaint->id;
+                $complaint_department->complaint_id = $complaint->id;
                 $complaint_department->department_id = $department;
                 $complaint_department->save();
             }
 
-            foreach($this->staff_id as $staff){
-                $complaint_staff = new ComplaintStaff();
-                $complaint_staff->complaint_id = $this->complaint->id;
-                $complaint_staff->staff_id = $staff;
-                $complaint_staff->save();
+            if($this->staff_id){
+                foreach($this->staff_id as $staff){
+                    $complaint_staff = new ComplaintStaff();
+                    $complaint_staff->complaint_id = $complaint->id;
+                    $complaint_staff->staff_id = $staff;
+                    $complaint_staff->save();
+                }
             }
             
+            $this->path = public_path('files');
+            $this->uploadAttachments();
+            $this->attachFiles();
+
             return response()->json([
                 'status' => 1,
                 'message' => 'Complaint updated successfully'
@@ -156,6 +168,8 @@ class ComplaintsController extends Controller
     public function delete(){
 		$complaint = Complaint::findorFail($this->id);
 
+        $this->detachFiles();
+
         if($complaint->delete()){
             return response()->json([
                 'status' => 1,
@@ -165,7 +179,7 @@ class ComplaintsController extends Controller
     }
 
     public function getById($id){
-        $complaint = Complaint::findorFail($id)->load('staff', 'complainant.patient', 'departments', 'complaint_category');
+        $complaint = Complaint::findorFail($id)->load('staff', 'complainant.patient', 'departments', 'complaint_category', 'complaint_attachments');
         if($this->request->query('q') == 'mark_as_read'){
             $complaint->status = "Received";
             $complaint->save();
@@ -295,15 +309,64 @@ class ComplaintsController extends Controller
             'data' => $data), JSON_PRETTY_PRINT);
     }
 
+    public function uploadAttachments(){
+        $this->uploaded_complaint_files = array();
+
+        if($this->files){
+            for($i = 0; $i < count($this->files); $i++){
+                $path = $this->path;
+                $new_path = public_path('files');
+                $path_parts = pathinfo($this->files[$i]);
+                $extension = $path_parts['extension'];
+                $filename = strtolower(preg_replace('/[[:space:]]+/', '-', $this->generateRandomString()) .'-'.uniqid() .'.' .$extension);
+                if(file_exists($this->files[$i])){
+                    $oldname = $this->files[$i];
+                    $newname = $new_path .'/'.$filename;
+
+                    if (!file_exists($new_path)) {
+                        mkdir($new_path, 0777, true);
+                    }
+                    copy($this->files[$i], $newname);
+                }    
+
+                $uploadedImage = array(
+                    'filename' => $filename,
+                    'path' => $newname
+                );
+                $this->uploaded_complaint_files[] = $uploadedImage;          
+            }
+        }
+    }
+
+    public function attachFiles(){
+        if(count($this->uploaded_complaint_files) > 0){
+            foreach ($this->uploaded_complaint_files as $file) {
+                $complaint_file = new ComplaintAttachment;
+                $complaint_file->attachment = $file['filename'];
+                $complaint_file->attachment_path = $file['path'];
+                $complaint_file->complaint_id = $this->id;
+                $complaint_file->save();
+            }
+        }
+    }
+
+    public function detachFiles(){
+        $complaint_files = ComplaintAttachment::all()->where('complaint_id', $this->id);
+        foreach ($complaint_files as $file) {
+            $file->delete();
+            unlink($file->path);
+        }
+    }
+
     public function checkDuplicate(){
         return Complaint::all()->where('email', $this->email);
     }
 
     public function closeComplaint(){
-        $this->complaint = Complaint::findorFail($this->id);
+        $complaint = Complaint::findorFail($this->id);
 
-        $this->complaint->status = 1;
-        if($this->complaint->save()){
+        $complaint->status = 1;
+        if($complaint->save()){
             $this->sendPatientMessage();
             return response()->json([
                 'status' => 1,
@@ -319,19 +382,28 @@ class ComplaintsController extends Controller
 
     public function sendPatientMessage(){
         $sms = new SMSController();
-        $sms->send_message($this->complaint->complainant['patient']['phone'], "Your complaint #" .$this->complaint->id ." has been reviewed and closed.");
+        $sms->send_message($complaint->complainant['patient']['phone'], "Your complaint #" .$complaint->id ." has been reviewed and closed.");
     }
 
     private function deleteRelatingFields(){
-        $complaint_staff = ComplaintStaff::all()->where('complaint_id', $this->complaint->id);
+        $complaint_staff = ComplaintStaff::all()->where('complaint_id', $this->id);
         foreach($complaint_staff as $staff){
             $staff->delete();
         }
 
-        $complaint_departments = ComplaintDepartment::all()->where('complaint_id', $this->complaint->id);
+        $complaint_departments = ComplaintDepartment::all()->where('complaint_id', $this->id);
         foreach($complaint_departments as $department){
             $department->delete();
         }
     }
 
+    private function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
 }
