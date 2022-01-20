@@ -297,7 +297,10 @@
             }, 
             "department_id[]": {
                 required: true,
-            }
+            },
+            date_of_concern: {
+                required: true,
+            }, 
         },
         messages: {
             complaint_category_id: {
@@ -309,7 +312,10 @@
             },
             "department_id[]": {
                 required: "Department is required",
-            }
+            },
+            date_of_concern: {
+                required: "Date of concern is required",
+            }, 
         },
         submitHandler: function(form) {
             if($("#complaint-description").val().trim().length > 0){
@@ -377,7 +383,7 @@
 	        	var complaint = response;
 	            $("#editComplaint").find('[name="complaint_category_id"]').selectpicker('val', complaint.complaint_category_id); 
                 $("#editComplaint").find('[name="description"]').summernote('code', complaint.description); 
-                $("#editComplaint").find('[name="date_of_concern"]').val(complaint.date_of_concern).end();
+                $("#editComplaint").find('[name="date_of_concern"]').val(complaint.formatted_date).end();
 	            $("#editComplaint").find('[name="id"]').val(complaint.id).end();  
 
                 var department_selections = [];
@@ -460,7 +466,10 @@
             }, 
             "department_id[]": {
                 required: true,
-            }
+            },
+            date_of_concern: {
+                required: true,
+            }, 
         },
         messages: {
             complaint_category_id: {
@@ -472,8 +481,12 @@
             },
             "department_id[]": {
                 required: "Department is required",
-            }
+            },
+            date_of_concern: {
+                required: "Date of concern is required",
+            }, 
         },
+
         submitHandler: function(form) {
             if($("#complaint-description-updater").val().trim().length > 0){
             var formData = new FormData(form);

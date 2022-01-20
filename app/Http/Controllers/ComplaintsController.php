@@ -183,8 +183,14 @@ class ComplaintsController extends Controller
         if($this->request->query('q') == 'mark_as_read'){
             $complaint->status = "Received";
             $complaint->save();
+
+            // Send message to patient
+            $sms = new SMSController();
+            $message = "Your complaint, marked with id #".$complaint->id ." has been received and will be attended to. We highly value your feedback.";
+            $result = json_decode($sms->send_message($complaint->complainant['patient']['phone'], $message), true);
         }
 
+        $complaint->formatted_date = Carbon::createFromFormat('Y-m-d', $complaint->date_of_concern)->format('d/m/Y');
         return json_encode($complaint);
     }
 
