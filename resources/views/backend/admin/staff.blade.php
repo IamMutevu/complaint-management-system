@@ -205,7 +205,8 @@
             }, 
             email: {
                 required: true,
-                minlength: 2
+                minlength: 2,
+                email: true
             }, 
             department_id: {
                 required: true,
@@ -307,16 +308,54 @@
 
     $("#edit-staff").validate({
         rules: {
-            name: {
+            first_name: {
                 required: true,
                 minlength: 2
-            }
+            },
+            last_name: {
+                required: true,
+                minlength: 2
+            }, 
+            phone: {
+                required: true,
+                minlength: 9,
+                maxlength: 9
+            }, 
+            email: {
+                required: true,
+                minlength: 2,
+                email: true
+            }, 
+            department_id: {
+                required: true,
+            },
+            complaint_category_id: {
+                required: true,
+            } 
         },
         messages: {
-            name: {
-                required: "Name is required",
-                minlength: "Name should be at least 2 characters"
-            }
+            first_name: {
+                required: "First name is required",
+                minlength: "First name should be at least 2 characters"
+            }, 
+            last_name: {
+                required: "Last name is required",
+                minlength: "Last name should be at least 2 characters"
+            }, 
+            phone: {
+                required: "Phone is required",
+                minlength: "Phone should be 9 characters"
+            },
+            email: {
+                required: "Email is required",
+                minlength: "Email should be at least 2 characters"
+            }, 
+            department_id: {
+                required: "Department is required",
+            },  
+            complaint_category_id: {
+                required: "Comlaint category is required",
+            },  
         },
         submitHandler: function(form) {
             var formData = new FormData(form);

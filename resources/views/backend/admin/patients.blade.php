@@ -279,7 +279,8 @@
             }, 
             email: {
                 required: true,
-                minlength: 2
+                minlength: 2,
+                email: true
             }, 
             date_of_birth: {
                 required: true,
@@ -430,7 +431,8 @@
             }, 
             email: {
                 required: true,
-                minlength: 2
+                minlength: 2,
+                email: true
             }, 
             date_of_birth: {
                 required: true,

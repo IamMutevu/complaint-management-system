@@ -14,6 +14,10 @@ class Complaint extends Model
         return $this->hasMany('App\ComplaintAttachment');
     }
 
+    public function complaint_updates(){
+        return $this->hasMany('App\ComplaintUpdate');
+    }
+
     public function complainant(){
         return $this->belongsTo('App\User', 'user_id');
     }

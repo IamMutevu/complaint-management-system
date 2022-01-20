@@ -200,6 +200,11 @@
                             <hr>
                             <h6>Attachments</h6>
                             <hr>
+                            <div id="complaint-attachments"></div>
+                            <hr>
+                            <h6>Updates</h6>
+                            <hr>
+                            <div id="complaint-updates"></div>
 							<div class="card-footer text-right">
                                 <a href="#" class="btn btn-sm btn-primary updateComplaintBtn"> Update</a>
 								<button type="button" class="btn btn-sm btn-secondary closeViewComplaintBtn"><i class="fa fa-times"></i> Close</button>
@@ -467,13 +472,8 @@
                                 <div class="card">
                                   <div class="card-body">
                                     <div class="row">
-                                        <div class="col-10">
+                                        <div class="col-12">
                                             <h4>${v.attachment}</h4>
-                                        </div> 
-                                        <div class="col-2">
-                                            <a href="#" class="btn btn-danger">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
                                         </div>    
                                     </div>
                                   </div>
@@ -629,6 +629,68 @@
                 });
                 $("#viewComplaint").find('#complaint-staff').html(staff).end();
 
+                // Display attachments 
+                var files = "";
+                if(complaint.complaint_attachments.length > 0){
+                    $.each(complaint.complaint_attachments, function(k,v){
+                        files += 
+                        `
+                            <div class="col-md-6">
+                                <div class="card">
+                                  <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-10">
+                                            <h4>${v.attachment}</h4>
+                                        </div> 
+                                        <div class="col-2">
+                                            <a href="#" class="btn btn-primary">
+                                                <i class="fa fa-download"></i>
+                                            </a>
+                                        </div>    
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                        `
+                    });
+                    $("#complaint-attachments").html(files);
+                }
+                else{
+                    $("#complaint-attachments").html("No files attached");
+                }
+
+                // Display updates 
+                var updates = "";
+                if(complaint.complaint_updates.length > 0){
+                    $.each(complaint.complaint_updates, function(k,v){
+                        if(v.user.patient == null){
+                            var author = "Admin";
+                        }
+                        else{
+                            var author = v.user.patient.first_name + " " +v.user.patient.last_name;   
+                        }
+                        updates += 
+                        `
+                          <div class="card">
+                            <div class="card-header" id="headingOne">
+                              <h5 class="mb-0">
+                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapse${v.id}" aria-expanded="true" aria-controls="collapseOne">
+                                  Update by ${author}
+                                </button>
+                              </h5>
+                            </div>
+                            <div id="collapse${v.id}" class="collapse show" aria-labelledby="headingOne" data-parent="#complaint-updates">
+                              <div class="card-body">
+                                ${v.description}
+                              </div>
+                            </div>
+                        `
+                    });
+                    $("#complaint-updates").html(updates);
+                }
+                else{
+                    $("#complaint-updates").html("No updates found");
+                }
 	            $('a[role="tab"]').on('shown').removeClass('active');
 		        $('div[role="tabpanel"]').on('shown').removeClass('active').removeClass('show');
 		        $('a[aria-controls="viewComplaint"]').addClass('active');

@@ -14,7 +14,7 @@
               </a>
           </li>
 
-          <li class="nav-item not-setup">
+<!--           <li class="nav-item not-setup">
               <a href="" class="nav-link profile">
                   <i class="nav-icon fa fa-user"></i>
                   <p>Profile</p>
@@ -26,6 +26,6 @@
                   <i class="nav-icon fa fa-cogs"></i>
                   <p>Settings</p>
               </a>
-          </li>
+          </li> -->
         </ul>
       </nav>

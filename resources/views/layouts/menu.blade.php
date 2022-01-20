@@ -55,11 +55,11 @@
                   <p>Staff</p>
               </a>
           </li>
-          <li class="nav-item not-setup">
+<!--           <li class="nav-item not-setup">
               <a href="{{ route('home') }}" class="nav-link">
                   <i class="nav-icon fa fa-cogs"></i>
                   <p>Settings</p>
               </a>
-          </li>
+          </li> -->
         </ul>
       </nav>

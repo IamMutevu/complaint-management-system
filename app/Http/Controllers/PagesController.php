@@ -38,7 +38,7 @@ class PagesController extends Controller
             $this->email = $request->email;
         }
         if($request->phone){
-            $this->phone = $request->phone;
+            $this->phone = substr($request->phone, 1);
         }
         if($request->verification_method){
             $this->verification_method = $request->verification_method;

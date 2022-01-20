@@ -32,7 +32,7 @@ class ComplaintsController extends Controller
 
     public function initialize_data(){
         $this->data = array(
-            'complaints' => Complaint::with('complaint_category', 'complainant.patient', 'departments', 'staff')->get()
+            'complaints' => Complaint::with('complaint_category', 'complainant.patient', 'departments', 'staff', 'complaint_updates')->get()
         );
     }
 
@@ -179,7 +179,7 @@ class ComplaintsController extends Controller
     }
 
     public function getById($id){
-        $complaint = Complaint::findorFail($id)->load('staff', 'complainant.patient', 'departments', 'complaint_category', 'complaint_attachments');
+        $complaint = Complaint::findorFail($id)->load('staff', 'complainant.patient', 'departments', 'complaint_category', 'complaint_attachments', 'complaint_updates.user.patient');
         if($this->request->query('q') == 'mark_as_read'){
             $complaint->status = "Received";
             $complaint->save();
