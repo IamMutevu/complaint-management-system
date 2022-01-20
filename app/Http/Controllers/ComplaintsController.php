@@ -220,6 +220,9 @@ class ComplaintsController extends Controller
                     else if($complaint->status == "Received"){
                         $status = '<span class="badge badge-primary">Received</span>';
                     }
+                    else if($complaint->status == "Investigations Ongoing"){
+                        $status = '<span class="badge badge-info">Investigations Ongoing</span>';
+                    }
                     else{
                         $status = '<span class="badge badge-success">Closed</span>';
                     }
@@ -256,19 +259,21 @@ class ComplaintsController extends Controller
                     else if($complaint->status == "Received"){
                         $status = '<span class="badge badge-primary">Received</span>';
                     }
+                    else if($complaint->status == "Investigations Ongoing"){
+                        $status = '<span class="badge badge-info">Investigations Ongoing</span>';
+                    }
                     else{
                         $status = '<span class="badge badge-success">Closed</span>';
                     }
                     $table_row[] = $status;
                     if($complaint->status == "Closed"){
                         $buttons = '<div class="btn-group float-right">
-                                        <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'" data-status="'.$complaint->status.'"><i class="fa fa-eye"></i></a>
+                                        <a href="#" class="btn-secondary btn-sm btn viewComplaintBtn" data-id="'.$complaint->id.'" data-status="'.$complaint->status.'">View</a>
                                     </div>';
                     }
                     else{
                         $buttons = '<div class="btn-group float-right">
-                                        <a href="#" class="btn-info btn-xs btn updateComplaintBtn" data-id="'.$complaint->id.'">Update</a>
-                                        <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'" data-status="'.$complaint->status.'"><i class="fa fa-eye"></i></a>
+                                        <a href="#" class="btn-secondary btn-sm btn viewComplaintBtn" data-id="'.$complaint->id.'" data-status="'.$complaint->status.'">View</a>
                                     </div>';
                     }
                     $table_row[] = $buttons;
@@ -286,19 +291,21 @@ class ComplaintsController extends Controller
                     else if($complaint->status == "Received"){
                         $status = '<span class="badge badge-primary">Received</span>';
                     }
+                    else if($complaint->status == "Investigations Ongoing"){
+                        $status = '<span class="badge badge-info">Investigations Ongoing</span>';
+                    }
                     else{
                         $status = '<span class="badge badge-success">Closed</span>';
                     }
                     $table_row[] = $status;
                     if($complaint->status == 1){
                         $buttons = '<div class="btn-group float-right">
-                                        <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'"><i class="fa fa-eye"></i></a>
+                                        <a href="#" class="btn-secondary btn-sm btn viewComplaintBtn" data-id="'.$complaint->id.'">View</a>
                                     </div>';
                     }
                     else{
                         $buttons = '<div class="btn-group float-right">
-                                        <a href="#" class="btn-info btn-xs btn updateComplaintBtn" data-id="'.$complaint->id.'">Update</a>
-                                        <a href="#" class="btn-secondary btn-xs btn viewComplaintBtn" data-id="'.$complaint->id.'"><i class="fa fa-eye"></i></a>
+                                        <a href="#" class="btn-secondary btn-sm btn viewComplaintBtn" data-id="'.$complaint->id.'">View</a>
                                     </div>';
                     }
                     $table_row[] = $buttons;

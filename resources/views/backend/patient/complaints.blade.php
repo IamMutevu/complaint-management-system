@@ -32,6 +32,9 @@
 					<li class="nav-item d-none">
 						<a class="nav-link" data-toggle="tab" href="#viewComplaint" role="tab" aria-controls="viewComplaint" aria-selected="false">View</a>
 					</li>
+                    <li class="nav-item d-none">
+                        <a class="nav-link" data-toggle="tab" href="#updateComplaint" role="tab" aria-controls="updateComplaint" aria-selected="false">Update</a>
+                    </li>
 				</ul>
 				<div class="tab-content" id="myTabContent">
 					<div class="tab-pane fade show active" id="complaintsTable" role="tabpanel" aria-labelledby="complaintsTable-tab">
@@ -198,10 +201,47 @@
                             <h6>Attachments</h6>
                             <hr>
 							<div class="card-footer text-right">
+                                <a href="#" class="btn btn-sm btn-primary updateComplaintBtn"> Update</a>
 								<button type="button" class="btn btn-sm btn-secondary closeViewComplaintBtn"><i class="fa fa-times"></i> Close</button>
 							</div>			
 						</div>
 					</div>
+                    <div class="tab-pane fade" id="updateComplaint" role="tabpanel" aria-labelledby="updateComplaint-tab">
+                        <div class="mt-3">
+                            <form method="post" action="{{ route('complaint_update_create') }}" id="new-complaint-update">
+                                @csrf
+                                <input type="hidden" name="complaint_id">
+                                <div class="card shadow mb-5 bg-white rounded">
+                                    <div class="card-header">
+                                        Complaint Information
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label for="complaint_category_id">Status</label>
+                                            <select class="form-control selectpicker" name="status">
+                                                <option>Investigations Ongoing</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="description">Description</label>
+                                            <textarea class="form-control summernote" id="complaint-update-description" name="description" rows="3"></textarea>
+                                        </div>
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <label for="complaint_files" class="col-form-label">Any related files</label>
+                                                <div class="dropzone page" id="complaint_update_files">
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div>
+                                    <div class="card-footer text-right">
+                                        <button type="button" class="btn btn-sm btn-secondary cancelEditComplaintBtn"> Cancel</button>
+                                        <button type="submit" class="btn btn-sm btn-primary"> Update</a>    
+                                    </div>
+                                </div>
+                            </form>                     
+                        </div>
+                    </div>
 				</div>
 			</div>			
 		</div>
@@ -250,6 +290,7 @@
     $('.selectpicker').selectpicker();
     $('#complaint_files').initDropzone();
     $('#complaint_files_updater').initDropzone();
+    $('#complaint_update_files').initDropzone();
 
     $('.summernote').summernote({
         height: 200,          
@@ -567,6 +608,12 @@
             cache: false,
             success: function (response) {
 	        	var complaint = response;
+
+                $('.updateComplaintBtn').attr('data-id', complaint.id);
+                if(complaint.status == "Closed"){
+                    $('.updateComplaintBtn').addClass('d-none');
+                }
+
 	            $("#viewComplaint").find('#complaint-category').html(complaint.complaint_category.name).end();
 	            $("#viewComplaint").find('#complaint-description').html(complaint.description).end();
 
@@ -639,42 +686,77 @@
 		});
     });  
 
-    $(document).on("click", ".approveComplaintBtn", function(e){
-    	var id = $(this).attr('data-id');
-    	bootbox.confirm({
-    		message: "Are you sure you want to approve this complaint?", 
-    		centerVertical: true,
-    		callback: function(result){ 
-		    	if(result){
-			        $.ajax({
-			            beforeSend: function () {
-			                $('#overlay').removeClass('d-none');
-			            },
-			            complete: function () {
-			                $('#overlay').addClass('d-none');  
-			            },
-			            type: 'GET',
-			            url: "/data/complaint/approve/"+id,
-			            dataType: 'JSON',
-			            cache: false,
-			            success: function (response, textStatus, jqXHR) {
-			            	$('#complaints-table').DataTable().ajax.reload();
-			                toastr.success(response.message);
+    $(document).on("click", ".updateComplaintBtn", function(e){
+        e.preventDefault();
+        var id = $(this).attr('data-id');
 
-			            },
-			            error: function (jqXHR, textStatus, errorThrown) {
-			                toastr.options = {
-			                    "closeButton": true,
-			                    "progressBar": true,
-			                    "positionClass": "toast-bottom-right",
-			                    "timeOut": "10000",
-			                };
-			                toastr.error(errorThrown);
-			            }
-			        }); 	    		
-		    	}
-			}
-		});
+        $("#updateComplaint").find('[name="complaint_id"]').val(id).end();  
+
+        $('a[role="tab"]').on('shown').removeClass('active');
+        $('div[role="tabpanel"]').on('shown').removeClass('active').removeClass('show');
+        $('a[aria-controls="updateComplaint"]').addClass('active');
+        $('#updateComplaint').addClass('active').addClass('show');
+        $('a[aria-controls="updateComplaint"]').closest('li').removeClass('d-none');
+    });  
+
+    $("#new-complaint-update").validate({
+        rules: {
+            status: {
+                required: true
+            },
+            description: {
+                required: true,
+                minlength: 20
+            }
+        },
+        messages: {
+            status: {
+                required: "Status is required"
+            }, 
+            description: {
+                required: "Description is required",
+                minlength: "Description should be at least 20 characters"
+            }
+        },
+        submitHandler: function(form) {
+            var formData = new FormData(form);
+            $.ajax({
+                beforeSend: function () {
+                    $('#overlay').removeClass('d-none');
+                },
+                complete: function () {
+                    $('#overlay').addClass('d-none');  
+                },
+                url: $(form).attr('action'), 
+                method: 'POST',
+                data: formData,
+                processData: false,
+                dataType: 'json', 
+                contentType: false,
+                success: function (response, textStatus, jqXHR) {
+                    form.reset();
+                    $('#complaints-table').DataTable().ajax.reload();
+                    $('select').selectpicker('refresh')
+                    toastr.success(response.message);
+                    setTimeout(
+                        function() 
+                        {
+                            toastr.success("You will be redirected in 3 seconds");
+                            location.replace('/admin/complaints');
+                        }, 100);
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-bottom-right",
+                        "timeOut": "10000",
+                    };
+                    toastr.error(errorThrown);
+                }
+            });
+        }
     });   
 });
 

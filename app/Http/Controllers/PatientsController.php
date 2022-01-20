@@ -58,7 +58,7 @@ class PatientsController extends Controller
             $this->email = $request->email;
         }
         if($request->date_of_birth){
-            $this->date_of_birth = Carbon::createFromFormat('m/d/Y h:i a', $request->date_of_birth)->format('Y-m-d');
+            $this->date_of_birth = Carbon::createFromFormat('d/m/Y', $request->date_of_birth)->format('Y-m-d');
         }
     }
 

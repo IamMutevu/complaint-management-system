@@ -88,6 +88,14 @@ Route::group(['prefix' => 'data'], function(){
 	Route::post('/complaint/update', 'ComplaintsController@update')->name('complaint_update');
 	Route::get('/complaint/delete/{id}', 'ComplaintsController@delete')->name('complaint_delete');
 	Route::get('/complaint/close/{id}', 'ComplaintsController@closeComplaint')->name('complaint_close');
+
+	Route::post('/complaint_update/dataTable', 'ComplaintUpdatesController@dataTable');
+	Route::get('/complaint_update/get_list', 'ComplaintUpdatesController@getList');
+	Route::get('/complaint_update/get_details/{id}', 'ComplaintUpdatesController@getByid');
+	Route::post('/complaint_update/create', 'ComplaintUpdatesController@create')->name('complaint_update_create');
+	Route::post('/complaint_update/update', 'ComplaintUpdatesController@update')->name('complaint_update_update');
+	Route::get('/complaint_update/delete/{id}', 'ComplaintUpdatesController@delete')->name('complaint_update_delete');
+	Route::get('/complaint_update/close/{id}', 'ComplaintUpdatesController@closeComplaintUpdate')->name('complaint_update_close');
 });
 
 

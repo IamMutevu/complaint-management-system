@@ -16,6 +16,7 @@ class ComplaintUpdatesController extends Controller
     private $id = null;
     private $complaint_update_id = null;
     private $description = null;
+    private $status = null;
     private $request = null;
 
     public function __construct(Request $request)
@@ -39,6 +40,9 @@ class ComplaintUpdatesController extends Controller
         if($request->description){
             $this->description = $request->description;
         }
+        if($request->status){
+            $this->status = $request->status;
+        }
         $this->request = $request;
 
     }
@@ -50,17 +54,37 @@ class ComplaintUpdatesController extends Controller
         $complaint_update->description = $this->description;
         $complaint_update->user_id = Auth::user()->id;
 
+        // Get complaint 
+        $complaint = Complaint::findorFail($this->complaint_id)->load('staff', 'complainant.patient', 'departments', 'complaint_category', 'complaint_attachments');
 
         if($complaint_update->save()){
-            //send message to admin
+            // Update complaint status
+            $complaint->status = $this->status;
+            $complaint->save();
+        
             $sms = new SMSController();
-            $message = "A complaint has been added by a patient. Please log in to the system to review";
-            $result = json_decode($sms->send_message("718504479", $message), true);
+
+            if($this->status == "Closed"){
+                $message = "Complaint marked with id #".$complaint->id ." has been closed. We highly value your feedback.";
+            }
+            else{
+                $message = "An update has been made to complaint marked with #".$complaint->id .". Please login to the system and review";
+            }
+
+            if($complaint->complainant['id'] == Auth::user()->id){
+                //send message to admin
+                $result = json_decode($sms->send_message("718504479", $message), true);
+            }
+            else{
+                //send message to patient
+                $result = json_decode($sms->send_message($complaint->complainant['patient']['phone'], $message), true);
+            }
+
 
             if($result['status'] == 1){ 
                 return response()->json([
                     'status' => 1,
-                    'message' => 'Complaint updateadded successfully'
+                    'message' => 'Complaint update added successfully'
                 ]); 
             }          
         }
